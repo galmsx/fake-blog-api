@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package comment;
+
+
+service CommentService{
+    rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse) {};
+    rpc GetGroupedComments(GetGroupedCommentsRequest) returns (GroupedCommentsResponse) {};
+}
+
+message GetCommentsRequest{
+optional string itemId = 1;
+optional string authorId = 2;
+repeated string itemIds = 3;
+repeated string authorIds = 4;
+}
+
+message GetGroupedCommentsRequest{
+     repeated string itemIds = 1;
+}
+
+message GetCommentsData{
+    repeated Comment comments = 1;
+}
+
+message GetCommentsResponse{
+    int32 status = 1;
+    GetCommentsData data = 2;
+}
+
+message Comment{
+    string id = 1;
+    string authorId = 2;
+    string itemId = 3;
+    string content = 4;
+    string createdAt = 5;
+    string updatedAt = 6;
+}
+
+message Group{
+    string itemId = 1;
+    repeated Comment comments = 2;
+}
+
+message GroupedCommentsData{
+repeated Group groups = 1;
+}
+
+message GroupedCommentsResponse{
+    int32 status = 1;
+    GroupedCommentsData data = 2;
+}

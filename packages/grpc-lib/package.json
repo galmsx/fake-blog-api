@@ -1,12 +1,14 @@
 {
-  "name": "@local/types-lib",
+  "name": "@local/grpc-lib",
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "dependencies": {
-    "class-validator": "^0.14.1",
+    "postgres": "^3.4.5",
+    "@local/common-lib": "workspace:latest",
+    "@local/types-lib": "workspace:latest",
     "tslib": "^2.3.0"
   }
 }

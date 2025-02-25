@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package user;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+import "common/common.proto";
+
+service UserService {
+  rpc GetUserWithPassword (UserFindOptions) returns (UserWithPasswordResponse) {}
+  rpc CreateUser (CreateUser) returns (common.EmptyResponse) {}
+}
+
+message UserFindOptions {
+  optional string id = 1;
+  optional string email = 2;
+}
+
+message CreateUser{
+  string email = 1;
+  string name = 2;
+  string type = 3;
+  string password = 4;
+}
+
+message User {
+  string id = 1;
+  string type = 2;
+  string email = 3;
+}
+
+message UserWithPassword {
+  string id = 2;
+  string type = 3;
+  string email = 4;
+  string password = 5;
+}
+
+message UserWithPasswordResponse{
+  int32 status = 1;
+  UserWithPassword data = 2;
+}

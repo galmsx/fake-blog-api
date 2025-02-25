@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/struct.proto";
+import "user/user.proto";
+import "common/common.proto";
+import "google/protobuf/empty.proto";
+
+
+service AuthService {
+  rpc Validate (Validate) returns (ValidateResponse) {}
+  rpc Login (user.User) returns (LoginResponse) {}
+  rpc Registration (Registration) returns (common.EmptyResponse) {}
+}
+
+message Validate {
+  string email = 1;
+  string password = 2;
+}
+
+message Registration{
+  string email = 1;
+  string name = 2;
+  string password = 3;
+}
+
+message ValidateResponse{
+  int32 status = 1;
+   user.User data = 2;
+}
+
+message LoginData{
+string accessToken = 1;
+string refreshToken = 2;
+user.User user = 3;
+}
+
+message LoginResponse{
+  int32 status = 1;
+  LoginData data = 2;
+}

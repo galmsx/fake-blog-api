@@ -14,11 +14,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      // "@fake-blog-api-new/common-lib": ["packages/common-lib/src/index.ts"],
-      // "@fake-blog-api-new/grpc-lib": ["packages/grpc-lib/src/index.ts"],
-      // "@fake-blog-api-new/types-lib": ["packages/types-lib/src/index.ts"]
-    }
+    "paths": {}
   },
   "exclude": ["node_modules", "tmp"]
 }

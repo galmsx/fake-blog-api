@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { User, Auth } from '@local/types-lib';
 import { ClientConfig } from '../rpc-client/types';
 
@@ -15,11 +14,8 @@ export const packageName = 'auth';
 
 export const protoPath = 'auth/auth.proto';
 
-export const protoDir = join(process.cwd(), '/dist/libs/grpc-lib/src');
-
 export const authClientConfig: ClientConfig = {
   serviceName: 'AuthService',
   packageName: 'auth',
   protoPath: 'auth/auth.proto',
-  protoDir: protoDir,
 };

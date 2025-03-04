@@ -6,6 +6,8 @@ import { RpcClientModule } from './rpc-client/rpc-client.module';
 import * as RpcServer from './rpc-server';
 import { RpcError, Status } from './error';
 import { toHttpStatus, toErrorType } from './error/mappers';
+import { protoDir } from './constants';
+
 
 export {
   UserRPC,
@@ -18,4 +20,5 @@ export {
   Status,
   toHttpStatus,
   toErrorType,
+  protoDir,
 };

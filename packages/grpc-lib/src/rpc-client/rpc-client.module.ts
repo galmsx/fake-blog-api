@@ -42,7 +42,7 @@ export class RpcClientModule {
                 protoPath: serviceConfig.protoPath,
                 url: `localhost:${config.getRpcClientPort(service)}`,
                 loader: {
-                  includeDirs: [serviceConfig.protoDir],
+                  includeDirs: ['/Users/galmsx/projects/fake-blog-api-new/packages/grpc-lib/src'],
                   keepCase: true,
                 },
               },

@@ -1,5 +1,4 @@
 import { User } from '@local/types-lib';
-import { join } from 'path';
 import { ClientConfig } from '../rpc-client/types';
 
 export interface UserService {
@@ -14,11 +13,9 @@ export const packageName = 'user';
 
 export const protoPath = 'user/user.proto';
 
-export const protoDir = join(process.cwd(), '/dist/libs/grpc-lib/src');
 
 export const userClientConfig: ClientConfig = {
   serviceName: 'UserService',
   packageName: 'user',
   protoPath: 'user/user.proto',
-  protoDir: protoDir,
 };

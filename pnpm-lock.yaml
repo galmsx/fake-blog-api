@@ -123,9 +123,6 @@ importers:
       pino:
         specifier: ^9.6.0
         version: 9.6.0
-      postgres:
-        specifier: ^3.4.5
-        version: 3.4.5
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -150,6 +147,24 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.1
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
+  services/comment:
+    dependencies:
+      '@local/common-lib':
+        specifier: workspace:^
+        version: link:../../packages/common-lib
+      '@local/grpc-lib':
+        specifier: workspace:latest
+        version: link:../../packages/grpc-lib
+      '@local/types-lib':
+        specifier: workspace:latest
+        version: link:../../packages/types-lib
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
       tslib:
         specifier: ^2.3.0
         version: 2.8.1

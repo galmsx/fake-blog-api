@@ -8,11 +8,9 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.12.6",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.39.3",
     "joi": "^17.13.3",
     "nestjs-cls": "^5.4.0",
     "pino": "^9.6.0",
-    "postgres": "^3.4.5",
     "@local/types-lib": "workspace:latest",
     "tslib": "^2.3.0"
   }

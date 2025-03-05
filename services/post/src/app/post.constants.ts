@@ -1,0 +1,1 @@
+export const COMMENT_SERVICE = 'COMMENT_SERVICE';

@@ -11,5 +11,9 @@
     "@local/types-lib": "workspace:latest",
     "class-transformer": "^0.5.1",
     "tslib": "^2.3.0"
+  },
+  "scripts": {
+    "migrate:gen": "drizzle-kit generate --config=./drizzle.config.ts",
+    "migrate:run": "drizzle-kit migrate --config=./drizzle.config.ts"
   }
 }

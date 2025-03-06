@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+    redis:
+        image: redis
+        ports:
+            - '6379:6379'
+    postgresdb:
+        image: postgres
+        restart: always
+        shm_size: 128mb
+        environment:
+            POSTGRES_PASSWORD: secret
+            POSTGRES_USER: user
+        ports:
+            - "5432:5432"

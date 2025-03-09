@@ -10,8 +10,8 @@ export class NestLoggerAdaptedService implements LoggerService {
 
   constructor(
     @Inject(LOGGER_SERVICE) private readonly logger: Logger,
-    private readonly contextService: ContextService,
-    private readonly configService: ConfigService
+    @Inject(ContextService) private readonly contextService: ContextService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
   ) {
     this.app = configService.APP_NAME;
   }

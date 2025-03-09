@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 import * as dotenv from 'dotenv';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import { ENV_FILE_PATH } from '../constants';
 import { Config } from '../types/config';
@@ -11,7 +11,7 @@ import process from 'process';
 
 @Injectable()
 export class ConfigDetector {
-  constructor(private readonly validator: ConfigValidator) {}
+  constructor(@Inject(ConfigValidator) private readonly validator: ConfigValidator) {}
 
   public getConfig(): Config {
     let rawConfig: Record<string, string>;

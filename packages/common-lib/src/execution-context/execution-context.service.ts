@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ClsService, ClsStore } from 'nestjs-cls';
 import { User } from '@local/types-lib';
 import { Metadata } from '@grpc/grpc-js';
@@ -11,11 +11,11 @@ export class CustomContext {
 }
 const contextKeys = Object.keys(new CustomContext()) as (keyof CustomContext)[];
 
-export interface ContextStore extends ClsStore, CustomContext {}
+export interface ContextStore extends ClsStore, CustomContext { }
 
 @Injectable()
 export class ContextService {
-  constructor(private readonly cls: ClsService<ContextStore>) {}
+  constructor(@Inject(ClsService) private readonly cls: ClsService<ContextStore>) { }
 
   public getRequestId(): string {
     return this.cls.get('request_id');

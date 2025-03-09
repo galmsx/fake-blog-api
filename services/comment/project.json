@@ -5,6 +5,27 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "migr:bundle": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "services/comment/bundledschema",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "services/comment/src/schema/index.ts",
+        "tsConfig": "services/comment/tsconfig.app.json"
+      }
+    },
+    "migrate:gen": {
+      "dependsOn": ["migr:bundle"],
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "services/comment",
+        "command": "drizzle-kit generate --config=./drizzle.config.ts"
+      }
+    },
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { UserRPC } from '@local/grpc-lib';
 import { User } from '@local/types-lib';
@@ -6,7 +6,7 @@ import { UserRepository } from './user.repository';
 
 @Controller()
 export class UserService implements UserRPC.UserService {
-  constructor(private readonly userRepository: UserRepository) { }
+  constructor(@Inject(UserRepository) private readonly userRepository: UserRepository) { }
 
   @GrpcMethod()
   async getUserWithPassword(

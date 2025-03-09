@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Config } from '../types/config';
 import { ConfigDetector } from './config.detector';
 import { RPC } from '@local/types-lib';
@@ -7,7 +7,7 @@ import { RPC } from '@local/types-lib';
 export class ConfigService {
   private readonly config: Config;
 
-  constructor(private readonly configDetector: ConfigDetector) {
+  constructor(@Inject(ConfigDetector) private readonly configDetector: ConfigDetector) {
     this.config = this.configDetector.getConfig();
   }
 

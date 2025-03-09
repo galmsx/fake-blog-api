@@ -5,13 +5,34 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "migr:bundle": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "services/user/bundledschema",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "services/user/src/schema/index.ts",
+        "tsConfig": "services/user/tsconfig.app.json",
+      }
+    },
+    "migrate:gen":{
+      "dependsOn": ["migr:bundle"],
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "services/user",
+        "command": "drizzle-kit generate --config=./drizzle.config.ts"
+      }
+    },
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/services/user",
+        "outputPath": "services/user/dist",
         "format": ["cjs"],
         "bundle": false,
         "main": "services/user/src/main.ts",

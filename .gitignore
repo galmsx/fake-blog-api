@@ -2,6 +2,7 @@
 
 # compiled output
 dist
+bundledschema
 tmp
 out-tsc
 

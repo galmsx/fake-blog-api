@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",
-  "main": "./src/index.js",
+  "main": "./src/index",
   "types": "./src/index.d.ts",
   "dependencies": {
     "class-validator": "^0.14.1",

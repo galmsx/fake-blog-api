@@ -8,7 +8,7 @@ console.log(111111);
 
 export default defineConfig({
 dialect: 'postgresql',
-schema: './src/schema',
+schema: './bundledschema/',
 dbCredentials: {
   host: process.env.DB_HOST!,
   port: Number(process.env.DB_PORT!),

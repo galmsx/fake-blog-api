@@ -13,8 +13,8 @@ export class DomainLoggerService implements DomainLogger {
   constructor(
     @Inject(LOGGER_SERVICE) private readonly logger: Logger,
     @Inject(INQUIRER) parentClass: object,
-    private readonly contextService: ContextService,
-    private readonly configService: ConfigService
+    @Inject(ContextService) private readonly contextService: ContextService,
+    @Inject(ConfigService) private readonly configService: ConfigService
   ) {
     this.sourceClass = parentClass?.constructor?.name;
     this.app = configService.APP_NAME;

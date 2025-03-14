@@ -24,9 +24,10 @@ export class ConfigDetector {
 
       rawConfig = dotenv.parse(fileContent);
     } else {
-      console.log('CONFIG NOT AVAILABLE:' + ENV_FILE_PATH);
+      console.log('CONFIG FILE NOT AVAILABLE USE ENV VARIABLES:' + ENV_FILE_PATH);
 
       rawConfig = process.env as Record<string, string>;
+      console.log('NODE_ENV: ', rawConfig.NODE_ENV);
     }
 
     const config: Config = this.validator.validate(rawConfig);

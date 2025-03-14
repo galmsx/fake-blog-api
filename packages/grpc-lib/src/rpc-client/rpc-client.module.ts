@@ -10,6 +10,7 @@ import { ClientConfig } from './types';
 import { ClientProxyHandlerService } from './services/proxy-handler.service';
 import { ProxyService } from './services/proxy.service';
 import { SERVICE } from './constants';
+import { protoDir } from '../constants';
 
 const serviceConfigMap = {
   [RPC.SERVICE.AUTH]: authClientConfig,
@@ -42,7 +43,7 @@ export class RpcClientModule {
                 protoPath: serviceConfig.protoPath,
                 url: `localhost:${config.getRpcClientPort(service)}`,
                 loader: {
-                  includeDirs: ['/Users/galmsx/projects/fake-blog-api-new/packages/grpc-lib/src'],
+                  includeDirs: [protoDir],
                   keepCase: true,
                 },
               },

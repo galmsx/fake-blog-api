@@ -13,7 +13,7 @@
         "platform": "node",
         "outputPath": "services/gateway/dist",
         "format": ["cjs"],
-        "bundle": false,
+        "bundle": true,
         "main": "services/gateway/src/main.ts",
         "tsConfig": "services/gateway/tsconfig.app.json",
         "assets": ["services/gateway/src/assets"],

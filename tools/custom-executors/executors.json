@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "generate-docker-image": {
+      "implementation": "./src/executors/generate-docker-image",
+      "schema": "./src/executors/schema.json",
+      "description": "generate-docker-image executor"
+    }
+  }
+}

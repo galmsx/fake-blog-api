@@ -1,0 +1,41 @@
+{
+  "name": "custom-executors",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/custom-executors/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tools/custom-executors",
+        "main": "tools/custom-executors/src/index.ts",
+        "tsConfig": "tools/custom-executors/tsconfig.lib.json",
+        "assets": [
+          "tools/custom-executors/*.md",
+          {
+            "input": "./tools/custom-executors/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./tools/custom-executors/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./tools/custom-executors",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./tools/custom-executors",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    }
+  }
+}

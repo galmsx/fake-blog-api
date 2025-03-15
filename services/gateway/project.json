@@ -5,6 +5,12 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "generate-docker-image": {
+      "executor": "@local/custom-executors:generate-docker-image",
+      "options": {
+        "name": "gateway"
+      }
+    },
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],

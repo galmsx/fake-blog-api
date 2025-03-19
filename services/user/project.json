@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "services/user/src",
   "projectType": "application",
-  "tags": [],
+  "tags": ["app-type:microservice"],
   "targets": {
     "migr:bundle": {
       "executor": "@nx/esbuild:esbuild",

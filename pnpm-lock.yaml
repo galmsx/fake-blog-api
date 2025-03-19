@@ -20,6 +20,9 @@ importers:
       '@nx/devkit':
         specifier: 20.4.6
         version: 20.4.6(nx@20.4.6(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15)))
+      '@types/lodash':
+        specifier: ^4.17.16
+        version: 4.17.16
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -29,6 +32,9 @@ importers:
       drizzle-orm:
         specifier: ^0.39.3
         version: 0.39.3(postgres@3.4.5)
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       nestjs-cls:
         specifier: ^5.4.0
         version: 5.4.0(@nestjs/common@11.0.10(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.10(@nestjs/common@11.0.10(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.0.10)(@nestjs/platform-express@11.0.10)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -351,6 +357,15 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.1
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
+  tools/custom-executors:
+    dependencies:
+      '@nx/devkit':
+        specifier: 20.4.6
+        version: 20.4.6(nx@20.4.6(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15)))
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -1954,6 +1969,9 @@ packages:
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
+
+  '@types/lodash@4.17.16':
+    resolution: {integrity: sha512-HX7Em5NYQAXKW+1T+FiuG27NGwzJfCX3s1GjOa7ujxZa52kjJLOr4FUxT+giF6Tgxv1e+/czV/iTtBw27WTU9g==}
 
   '@types/node@18.16.9':
     resolution: {integrity: sha512-IeB32oIV4oGArLrd7znD2rkHQ6EDCM+2Sr76dJnrHwv9OHBTTM6nuDLK9bmikXzPa0ZlWMWtRGo/Uw4mrzQedA==}
@@ -3583,6 +3601,9 @@ packages:
 
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
+
+  lodash@4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -6501,6 +6522,8 @@ snapshots:
     dependencies:
       '@types/node': 18.16.9
 
+  '@types/lodash@4.17.16': {}
+
   '@types/node@18.16.9': {}
 
   '@types/parse-json@4.0.2': {}
@@ -8422,6 +8445,8 @@ snapshots:
   lodash.merge@4.6.2: {}
 
   lodash.once@4.1.1: {}
+
+  lodash@4.17.21: {}
 
   log-symbols@4.1.0:
     dependencies:

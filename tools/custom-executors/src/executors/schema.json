@@ -1,9 +1,15 @@
 {
-  "$schema": "https://json-schema.org/schema",
+  "$schema": "http://json-schema.org/schema",
   "version": 2,
-  "title": "GenerateDockerImage executor",
+  "cli": "nx",
+  "title": "PushDockerImage executor",
   "description": "",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The output path of a project's build.  Relative to the root of the repository."
+    }
+  },
   "required": []
 }

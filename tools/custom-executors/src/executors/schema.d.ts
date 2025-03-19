@@ -1,1 +1,3 @@
-export interface GenerateDockerImageExecutorSchema {} // eslint-disable-line
+export interface GenerateDockerImageExecutorSchema {
+    dockerFilePath?: string;
+  }

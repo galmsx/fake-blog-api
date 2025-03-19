@@ -3,12 +3,12 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "services/gateway/src",
   "projectType": "application",
-  "tags": [],
+  "tags": ["app-type:microservice"],
   "targets": {
     "generate-docker-image": {
       "executor": "@local/custom-executors:generate-docker-image",
       "options": {
-        "name": "gateway"
+        "dockerFilePath": "services/gateway/.dockerfile"
       }
     },
     "build": {

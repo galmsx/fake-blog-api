@@ -5,13 +5,16 @@
   "projectType": "application",
   "tags": ["app-type:microservice"],
   "targets": {
+    "generate-docker-image": {
+      "executor": "@local/custom-executors:generate-docker-image"
+    },
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/services/auth",
+        "outputPath": "services/auth/dist",
         "format": ["cjs"],
         "bundle": false,
         "main": "services/auth/src/main.ts",

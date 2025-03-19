@@ -5,6 +5,9 @@
   "projectType": "application",
   "tags": ["app-type:microservice"],
   "targets": {
+    "generate-docker-image": {
+      "executor": "@local/custom-executors:generate-docker-image"
+    },
     "migr:bundle": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
@@ -32,7 +35,7 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/services/comment",
+        "outputPath": "services/comment/dist",
         "format": ["cjs"],
         "bundle": false,
         "main": "services/comment/src/main.ts",

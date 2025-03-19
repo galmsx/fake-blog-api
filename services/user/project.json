@@ -5,6 +5,9 @@
   "projectType": "application",
   "tags": ["app-type:microservice"],
   "targets": {
+    "generate-docker-image": {
+      "executor": "@local/custom-executors:generate-docker-image"
+    },
     "migr:bundle": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
@@ -15,10 +18,10 @@
         "format": ["cjs"],
         "bundle": true,
         "main": "services/user/src/schema/index.ts",
-        "tsConfig": "services/user/tsconfig.app.json",
+        "tsConfig": "services/user/tsconfig.app.json"
       }
     },
-    "migrate:gen":{
+    "migrate:gen": {
       "dependsOn": ["migr:bundle"],
       "executor": "nx:run-commands",
       "options": {

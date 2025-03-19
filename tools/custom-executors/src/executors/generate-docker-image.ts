@@ -25,6 +25,9 @@ const dockerBuildArgs: Record<AppType, DockerBuildArgsFunc> = {
 
     return {
       imageName,
+      buildArgs: {
+        PROJECT_NAME: context.projectName,
+      }
     };
   }
 };

@@ -6,10 +6,7 @@
   "tags": ["app-type:microservice"],
   "targets": {
     "generate-docker-image": {
-      "executor": "@local/custom-executors:generate-docker-image",
-      "options": {
-        "dockerFilePath": "services/gateway/.dockerfile"
-      }
+      "executor": "@local/custom-executors:generate-docker-image"
     },
     "build": {
       "executor": "@nx/esbuild:esbuild",

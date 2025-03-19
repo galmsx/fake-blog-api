@@ -12,8 +12,8 @@ export interface FunctionTarget {
 export class ClientProxyHandlerService implements ProxyHandler<FunctionTarget> {
   constructor(
     @Inject(SERVICE) private readonly client: FunctionTarget,
-    private readonly logger: Logger.DomainLoggerService,
-    private readonly contextService: ExecutionContext.ContextService
+    @Inject(Logger.DomainLoggerService) private readonly logger: Logger.DomainLoggerService,
+    @Inject(ExecutionContext.ContextService) private readonly contextService: ExecutionContext.ContextService
   ) { }
 
   public get(target: FunctionTarget, propKey: PropertyKey): any {

@@ -6,6 +6,7 @@ export interface UserService {
     findOptions: User.Types.UserFindOptions
   ): Promise<User.Types.UserWithPassword | null>;
   createUser(request: User.Types.CreateUserRequest): Promise<void>;
+  healthCheck(): Promise<void>;
 }
 
 export const serviceName = 'UserService';

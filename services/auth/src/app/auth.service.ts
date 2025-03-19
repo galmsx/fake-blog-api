@@ -17,7 +17,12 @@ export class AuthService implements AuthRPC.AuthService {
     private readonly userService: UserRPC.UserService,
     private readonly jwtService: JwtService,
     private readonly configService: Config.ConfigService
-  ) {}
+  ) { }
+
+  @GrpcMethod()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async healthCheck(): Promise<void> {
+  };
 
   @GrpcMethod()
   async validate(
@@ -50,7 +55,7 @@ export class AuthService implements AuthRPC.AuthService {
       user,
     };
   }
-  
+
   @GrpcMethod()
   async registration(request: Auth.DTO.RegisterUserDto): Promise<void> {
     const { email, name, password } = request;

@@ -6,7 +6,12 @@ import { CommentRepository } from './comment.repository';
 
 @Controller()
 export class CommentService implements CommentRPC.CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(private readonly commentRepository: CommentRepository) { }
+
+  @GrpcMethod()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async healthCheck(): Promise<void> {
+  };
 
   @GrpcMethod()
   async getComments(

@@ -12,6 +12,7 @@ service AuthService {
   rpc Validate (Validate) returns (ValidateResponse) {}
   rpc Login (user.User) returns (LoginResponse) {}
   rpc Registration (Registration) returns (common.EmptyResponse) {}
+  rpc HealthCheck (google.protobuf.Empty) returns (common.EmptyResponse) {}
 }
 
 message Validate {

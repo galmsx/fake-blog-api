@@ -12,7 +12,12 @@ export class PostService implements PostRPC.PostService {
     @Inject(COMMENT_SERVICE)
     private readonly commentService: CommentRPC.CommentService,
     private readonly postRepository: PostRepository
-  ) {}
+  ) { }
+
+  @GrpcMethod()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async healthCheck(): Promise<void> {
+  };
 
   @GrpcMethod()
   async getAllPosts(

@@ -2,10 +2,14 @@ syntax = "proto3";
 
 package comment;
 
+import "common/common.proto";
+import "google/protobuf/empty.proto";
+
 
 service CommentService{
     rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse) {};
     rpc GetGroupedComments(GetGroupedCommentsRequest) returns (GroupedCommentsResponse) {};
+    rpc HealthCheck (google.protobuf.Empty) returns (common.EmptyResponse) {}
 }
 
 message GetCommentsRequest{

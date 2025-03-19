@@ -9,6 +9,11 @@ export class UserService implements UserRPC.UserService {
   constructor(@Inject(UserRepository) private readonly userRepository: UserRepository) { }
 
   @GrpcMethod()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async healthCheck(): Promise<void> {
+  };
+
+  @GrpcMethod()
   async getUserWithPassword(
     findOptions: User.Types.UserFindOptions
   ): Promise<User.Types.UserWithPassword | null> {

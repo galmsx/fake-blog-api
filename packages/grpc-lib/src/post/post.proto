@@ -4,10 +4,12 @@ package post;
 
 import "common/common.proto";
 import "comment/comment.proto";
+import "google/protobuf/empty.proto";
 
 
 service PostService{
     rpc GetAllPosts (GetPostsRequest) returns (GetPostsResponse) {};
+    rpc HealthCheck (google.protobuf.Empty) returns (common.EmptyResponse) {}
 }
 
 message GetPostsRequest{

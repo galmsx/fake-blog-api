@@ -7,6 +7,7 @@ export interface AuthService {
   ): Promise<User.Types.User | null>;
   login(user: User.Types.User): Promise<Auth.Types.LoginResponse>;
   registration(request: Auth.DTO.RegisterUserDto): Promise<void>;
+  healthCheck(): Promise<void>;
 }
 
 export const serviceName = 'AuthService';

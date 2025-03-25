@@ -15,7 +15,7 @@ export const dockerHelper = {
       .join(' ');
 
     await execPromise(
-      `docker build -f ${dockerFilePath} ${buildArgValues} -t ${tag} .`
+      `docker build -f ${dockerFilePath} ${buildArgValues} -t ${tag} --platform linux/amd64 .`
     );
   },
   tag: async (localTag: string, externalTag: string): Promise<void> => {

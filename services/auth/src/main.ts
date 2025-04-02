@@ -32,6 +32,7 @@ async function bootstrap() {
   );
 
   await app.startAllMicroservices();
+  
   await app.init();
   Logger.log(`🚀 Auth service is running`);
 }

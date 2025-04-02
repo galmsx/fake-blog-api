@@ -1,0 +1,300 @@
+# 1. ECR репозиторий
+resource "aws_ecr_repository" "service" {
+  name                 = var.service_name
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# 2. IAM роли и политики
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "${var.service_name}-ecs-task-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "${var.service_name}-ecs-instance-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "${var.service_name}-ecs-instance-profile"
+  role = aws_iam_role.ecs_instance_role.name
+}
+
+# 3. Security Groups
+resource "aws_security_group" "ecs_instance_sg" {
+  name        = "${var.service_name}-ecs-instance-sg"
+  description = "Security group for ECS EC2 instances"
+  vpc_id      = var.vpc_id 
+  ingress {
+    from_port       = var.port
+    to_port         = var.port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.service_name}-alb-sg"
+  description = "Security group for ALB"
+  vpc_id      = var.vpc_id  
+
+  ingress {
+    from_port   = var.port
+    to_port     = var.port
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_cidr_blocks
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 5. Launch Template для EC2 инстансов
+data "aws_ami" "ecs_optimized" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-ecs-hvm-*-x86_64-ebs"]
+  }
+}
+
+resource "aws_launch_template" "ecs_launch_template" {
+  name_prefix   = "${var.service_name}-ecs-launch-template-"
+  image_id      = data.aws_ami.ecs_optimized.id
+  instance_type = var.instance_type
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
+
+  network_interfaces {
+    security_groups = [aws_security_group.ecs_instance_sg.id]
+  }
+
+  user_data = base64encode(<<-EOF
+              #!/bin/bash
+              echo ECS_CLUSTER=${var.cluster_name} >> /etc/ecs/ecs.config
+              EOF
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# 6. Auto Scaling Group
+# data "aws_vpc" "default" {
+#   default = true
+# }
+
+# data "aws_subnets" "default" {
+#   filter {
+#     name   = "vpc-id"
+#     values = [data.aws_vpc.default.id]
+#   }
+# }
+
+resource "aws_autoscaling_group" "ecs_asg" {
+  name                = "${var.service_name}-ecs-asg"
+  vpc_zone_identifier = var.private_subnets
+  min_size            = var.min_size
+  max_size            = var.max_size
+  desired_capacity    = var.desired_count
+
+
+  launch_template {
+    id      = aws_launch_template.ecs_launch_template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "ECS Instance - ${var.service_name}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+}
+
+# 7. Capacity Provider
+resource "aws_ecs_capacity_provider" "ec2_capacity_provider" {
+  name = "${var.service_name}-ec2-capacity-provider"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.ecs_asg.arn
+
+    managed_scaling {
+      maximum_scaling_step_size = 1000
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "cluster_capacity_providers" {
+  cluster_name       = var.cluster_name
+  capacity_providers = [aws_ecs_capacity_provider.ec2_capacity_provider.name]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = aws_ecs_capacity_provider.ec2_capacity_provider.name
+  }
+}
+
+# 8. Load Balancer ресурсы
+resource "aws_lb" "ecs_alb" {
+  name               = "${var.service_name}-ecs-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = var.public_subnets
+
+  enable_deletion_protection = false
+}
+
+resource "aws_lb_target_group" "ecs_tg" {
+  name        = "${var.service_name}-ecs-tg"
+  port        = var.port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "instance"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    path                = "/api/health-check"
+    interval            = 120
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.ecs_alb.arn
+  port              = var.port
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs_tg.arn
+  }
+}
+
+# 9. Task Definition
+resource "aws_ecs_task_definition" "service" {
+  family                   = var.service_name
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  cpu                      = var.task_cpu
+  memory                   = var.task_memory
+
+  container_definitions = jsonencode([{
+    name      = "${var.service_name}-service-container",
+    image     = "${aws_ecr_repository.service.repository_url}:latest",
+    cpu       = var.task_cpu
+    memory    = var.task_memory
+    essential = true,
+    portMappings = [{
+      containerPort = var.port,
+      hostPort      = var.port,
+      protocol      = "tcp"
+    }],
+    environment = [
+      for k, v in var.environment_variables : {
+        name  = k,
+        value = v
+      }
+    ],
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        "awslogs-group"         = "/ecs/${var.service_name}",
+        "awslogs-region"        = "us-east-1",
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
+  }])
+}
+
+# 10. CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/${var.service_name}"
+  retention_in_days = var.log_retention_days
+}
+
+# 11. ECS Service
+resource "aws_ecs_service" "service" {
+  name            = "${var.service_name}-service"
+  cluster         = var.cluster_id
+  task_definition = aws_ecs_task_definition.service.arn
+  desired_count   = var.desired_count
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_tg.arn
+    container_name   = "${var.service_name}-service-container"
+    container_port   = var.port
+  }
+
+  capacity_provider_strategy {
+    capacity_provider = aws_ecs_capacity_provider.ec2_capacity_provider.name
+    weight            = 100
+  }
+
+  depends_on = [
+    aws_lb_listener.http,
+    aws_ecs_cluster_capacity_providers.cluster_capacity_providers
+  ]
+}

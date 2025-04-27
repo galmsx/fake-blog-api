@@ -17,6 +17,9 @@ variable "vpc_id" {
   description = "VPC ID where resources will be deployed"
   type        = string
 }
+variable "postgres_ip" {
+  type = string
+}
 
 variable "private_subnets" {
   description = "List of private subnet IDs"

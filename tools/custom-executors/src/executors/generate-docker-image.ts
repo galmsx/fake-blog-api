@@ -1,5 +1,6 @@
 import { ExecutorContext } from '@nx/devkit';
 import { GenerateDockerImageExecutorSchema } from './schema';
+import * as fs from 'fs';
 import {
   tagHelper,
   dockerHelper,
@@ -36,8 +37,10 @@ export default async function runExecutor(
   schema: GenerateDockerImageExecutorSchema,
   context: ExecutorContext
 ) {
+
   const project = context.projectsConfigurations.projects[context.projectName];
   const tags = tagHelper.parseTags(project.tags);
+  console.log(schema);
   const projectType = new Set<AppType>([
     'microservice'
   ]);
@@ -63,7 +66,15 @@ export default async function runExecutor(
     }
   };
 
-  await dockerHelper.build(dockerFilePath, imageName, buildArgs);
+  // await dockerHelper.build(dockerFilePath, imageName, buildArgs);
+
+  if (schema.ecrConfigFile) {
+    const config = fs.readFileSync(schema.ecrConfigFile);
+    console.log(config);
+  }
+  else {
+    console.log('ECR config file not provided');
+  }
 
   return { success: true };
 }

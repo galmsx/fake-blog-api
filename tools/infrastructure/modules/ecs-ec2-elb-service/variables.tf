@@ -4,6 +4,9 @@ variable "cluster_name" {
 variable "cluster_id" {
   type = string
 }
+variable "postgres_ip" {
+  type = string
+}
 variable "service_name" {
   type    = string
   default = "unnamed-service"

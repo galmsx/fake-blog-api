@@ -56,17 +56,12 @@ jobs:
         id: terraform
         working-directory: ./tools/infrastructure
         run: |
-          echo "repository_urls=$(terraform output -json service_repository_urls)" >> $GITHUB_OUTPUT
-
-      - name: Save repository URLs
-        run: |
-          echo '${{ steps.terraform.outputs.repository_urls }}' > repository_urls.json
-
+          terraform output -json service_repository_urls > repository_urls.json
       - name: Upload repository URLs
         uses: actions/upload-artifact@v4
         with:
           name: repository-urls
-          path: repository_urls.json
+          path: ./tools/infrastructure/repository_urls.json
 
   deploy-applications:
     name: Deploy Applications with Nx

@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "galmsx-tfstate-test"
-    key    = "state"
-    region = "us-east-1"
+    bucket       = "galmsx-tfstate-test"
+    key          = "state"
+    region       = "us-east-1"
     use_lockfile = true
   }
 }
@@ -19,181 +19,130 @@ resource "aws_ecs_cluster" "cluster" {
     value = "enabled"
   }
 }
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "my-ecs-instance-role"
 
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
 }
 
-# 2. Internet Gateway (для публичного ALB)
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
+resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-# 3. Публичные подсети (для ALB)
-resource "aws_subnet" "public_az1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true # Для ALB
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "my-ecs-instance-profile"
+  role = aws_iam_role.ecs_instance_role.name
 }
-
-resource "aws_subnet" "public_az2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
-}
-
-# 4. Приватные подсети (для ECS-сервисов)
-resource "aws_subnet" "private_az1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.101.0/24"
-  availability_zone = "us-east-1a"
-}
-
-resource "aws_subnet" "private_az2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.102.0/24"
-  availability_zone = "us-east-1b"
-}
-# 5. NAT Gateway (для выхода в интернет из приватных подсетей)
-resource "aws_eip" "nat" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_az1.id # NAT должен быть в публичной подсети!
-}
-# 6. Таблицы маршрутов
-## Публичная таблица (для ALB)
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-}
-
-## Приватная таблица (для ECS-сервисов)
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat.id # Выход в интернет через NAT
-  }
-}
-# 7. Привязка подсетей к таблицам маршрутов
-resource "aws_route_table_association" "public_az1" {
-  subnet_id      = aws_subnet.public_az1.id
-  route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "public_az2" {
-  subnet_id      = aws_subnet.public_az2.id
-  route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "private_az1" {
-  subnet_id      = aws_subnet.private_az1.id
-  route_table_id = aws_route_table.private.id
-}
-
-resource "aws_route_table_association" "private_az2" {
-  subnet_id      = aws_subnet.private_az2.id
-  route_table_id = aws_route_table.private.id
-}
-
-resource "aws_security_group" "postgres_sg" {
-  name        = "postgres-security-group"
-  description = "Allow PostgreSQL and SSH access"
+# 3. Security Groups
+resource "aws_security_group" "ecs_sg" {
+  name        = "my-ecs-instance-sg"
+  description = "Security group for ECS EC2 instances"
   vpc_id      = aws_vpc.main.id
-
-  # SSH (для доступа и настройки)
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Лучше ограничить свой IP!
+    from_port = 80
+    to_port   = 50051
+    protocol  = "tcp"
   }
 
-  # PostgreSQL
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Для тестов можно открыть, в продакшене ограничьте!
-  }
-
-  # Исходящий трафик
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "postgres-sg"
-  }
 }
-data "aws_ami" "amazon_linux_2023_arm" {
+data "aws_ami" "ecs_optimized" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-2023.*-arm64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    values = ["amzn2-ami-ecs-hvm-*-x86_64-ebs"]
   }
 }
+resource "aws_launch_template" "ecs_launch_template" {
+  name_prefix   = "ecs-cluster-launch-template-"
+  image_id      = data.aws_ami.ecs_optimized.id
+  instance_type = var.ec2_instance_type
 
-# EC2 инстанс (используем самый дешевый - t4g.nano)
-resource "aws_instance" "postgres_instance" {
-  ami           = data.aws_ami.amazon_linux_2023_arm.id
-  instance_type = "t4g.nano" # 0.5 ГБ RAM, 2 vCPU (~$3-5/мес)
-  # key_name      = "your-key-pair"           # Укажите свой ключ SSH
-  subnet_id              = aws_subnet.private_az1.id
-  vpc_security_group_ids = [aws_security_group.postgres_sg.id]
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
 
-  user_data = <<-EOF
+  network_interfaces {
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
+  user_data = base64encode(<<-EOF
               #!/bin/bash
-              # Устанавливаем Docker
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ec2-user
-
-              # Запускаем PostgreSQL в Docker
-              docker run -d \
-                --name postgres-test \
-                -e POSTGRES_USER=${var.db_username} \
-                -e POSTGRES_PASSWORD=${var.db_password} \
-                -e POSTGRES_DB=${var.db_name} \
-                -p ${var.db_port}:5432 \
-                postgres:15-alpine
-
-              # Ждем запуска PostgreSQL
-              sleep 10
-
-              # Создаем схему (schema) в БД
-              docker exec postgres-test psql -U admin -d testdb -c "CREATE SCHEMA IF NOT EXISTS test_schema;"
+              echo ECS_CLUSTER=${aws_ecs_cluster.cluster.name} >> /etc/ecs/ecs.config
               EOF
+  )
 
-  tags = {
-    Name = "postgres-test-instance"
+  lifecycle {
+    create_before_destroy = true
   }
 }
+# Общий Auto Scaling Group для ECS-кластера
+resource "aws_autoscaling_group" "ecs_cluster_asg" {
+  name                = "my-ecs-cluster-asg"
+  vpc_zone_identifier = [aws_subnet.private_az1.id, aws_subnet.private_az2.id]
+  min_size            = 1
+  max_size            = 3
+  desired_capacity    = 2
 
+  launch_template {
+    id      = aws_launch_template.ecs_launch_template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "ECS Instance - Shared Cluster"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+}
+# Общий Capacity Provider
+resource "aws_ecs_capacity_provider" "ecs_cp" {
+  name = "my-ecs-cluster-cp"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.ecs_cluster_asg.arn
+
+    managed_scaling {
+      maximum_scaling_step_size = 2
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
+  }
+}
+resource "aws_ecs_cluster_capacity_providers" "cluster_cps" {
+  cluster_name       = aws_ecs_cluster.cluster.name
+  capacity_providers = [aws_ecs_capacity_provider.ecs_cp.name]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = aws_ecs_capacity_provider.ecs_cp.name
+  }
+}
 
 module "ecs-service-ec2-elb" {
   for_each = { for k, v in var.projects : k => v if v.type == "EC2_ELB" }
@@ -202,8 +151,9 @@ module "ecs-service-ec2-elb" {
   cluster_name = aws_ecs_cluster.cluster.name
   cluster_id   = aws_ecs_cluster.cluster.id
   service_name = each.value.name
-  port         = each.value.port
   aws_region   = var.aws_region
+  sg_id        = aws_security_group.ecs_sg.id
+  ecs_cp_name  = aws_ecs_capacity_provider.ecs_cp.name
   private_subnets = [
     aws_subnet.private_az1.id,
     aws_subnet.private_az2.id
@@ -222,6 +172,7 @@ module "ecs-service-ec2-elb" {
     DB_PORT     = var.db_port
     NODE_ENV    = var.node_env
   }
+  depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]
 }
 
 module "ecs-service-ec2-sd" {
@@ -231,8 +182,9 @@ module "ecs-service-ec2-sd" {
   cluster_name = aws_ecs_cluster.cluster.name
   cluster_id   = aws_ecs_cluster.cluster.id
   service_name = each.value.name
-  port         = each.value.port
   aws_region   = var.aws_region
+  sg_id        = aws_security_group.ecs_sg.id
+  ecs_cp_name  = aws_ecs_capacity_provider.ecs_cp.name
   private_subnets = [
     aws_subnet.private_az1.id,
     aws_subnet.private_az2.id
@@ -249,22 +201,9 @@ module "ecs-service-ec2-sd" {
     JWT_REFRESH = var.jwt_refresh
     NODE_ENV    = var.node_env
   }
+  depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]
 }
 
-# module "ecs-service-fargate" {
-#   for_each = { for k, v in var.projects : k => v if v.type != "EC2_ELB" && v.type != "EC2_SD" }
-#   source   = "./modules/ecs-fargate-sd-balanced-service"
-#   # остальные параметры
-#   cluster_id   = aws_ecs_cluster.cluster.id
-#   service_name = each.value.name
-#   port         = each.value.port
-#   aws_region   = var.aws_region
-#   private_subnets = [
-#     aws_subnet.private_az1.id,
-#     aws_subnet.private_az2.id
-#   ]
-#   vpc_id = aws_vpc.main.id
-# }
 
 output "lb_dns" {
   value = { for name, service in module.ecs-service-ec2-elb : name => service.pub_ip }

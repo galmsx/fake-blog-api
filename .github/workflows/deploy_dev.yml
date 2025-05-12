@@ -67,6 +67,7 @@ jobs:
     name: Deploy Applications with Nx
     needs: deploy-infrastructure
     runs-on: ubuntu-latest
+    environment: develop
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

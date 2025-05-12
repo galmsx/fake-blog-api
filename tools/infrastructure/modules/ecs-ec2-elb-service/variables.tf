@@ -15,6 +15,14 @@ variable "vpc_id" {
   description = "VPC ID where resources will be deployed"
   type        = string
 }
+variable "sg_id" {
+  description = "VPC ID where resources will be deployed"
+  type        = string
+}
+variable "ecs_cp_name" {
+  description = "Name of the ECS Capacity Provider"
+  type        = string
+}
 variable "private_subnets" {
   description = "List of private subnet IDs"
   type        = list(string)
@@ -23,22 +31,11 @@ variable "public_subnets" {
   description = "List of private subnet IDs"
   type        = list(string)
 }
-variable "port" {
-  description = "service port"
-  type        = number
-  default     = 80
-}
 variable "allowed_cidr_blocks" {
   description = "CIDR blocks allowed to access gRPC port"
   type        = list(string)
   default     = ["0.0.0.0/0"] # Разрешить весь VPC
 }
-variable "instance_type" {
-  description = "EC2 instance type for ECS cluster"
-  type        = string
-  default     = "t2.micro"
-}
-
 variable "min_size" {
   description = "Minimum number of instances in ASG"
   type        = number

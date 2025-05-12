@@ -17,6 +17,14 @@ variable "vpc_id" {
   description = "VPC ID where resources will be deployed"
   type        = string
 }
+variable "sg_id" {
+  description = "VPC ID where resources will be deployed"
+  type        = string
+}
+variable "ecs_cp_name" {
+  description = "Name of the ECS Capacity Provider"
+  type        = string
+}
 variable "postgres_ip" {
   type = string
 }

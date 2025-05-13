@@ -91,8 +91,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: repository-urls
-          path: .
+          path: repository-urls.json
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
       # - run: pnpm exec nx affected -t generate-docker-image --base=${{ github.event.before }} --head=${{ github.event.after }} --ecrConfigFile=repository-urls --skip-nx-cache
-      - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository-urls --skip-nx-cache
+      - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository-urls.json --skip-nx-cache

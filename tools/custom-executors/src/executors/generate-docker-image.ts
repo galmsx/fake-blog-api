@@ -8,6 +8,7 @@ import {
   AppType,
 } from '../../utilites';
 import * as _ from 'lodash';
+import path = require('path');
 
 type DockerBuildArgs = {
   imageName: string,
@@ -69,7 +70,7 @@ export default async function runExecutor(
   // await dockerHelper.build(dockerFilePath, imageName, buildArgs);
 
   if (schema.ecrConfigFile) {
-    const config = fs.readFileSync(schema.ecrConfigFile);
+    const config = fs.readFileSync(path.join(process.cwd(), schema.ecrConfigFile));
     console.log(config);
   }
   else {

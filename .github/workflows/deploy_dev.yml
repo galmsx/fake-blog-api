@@ -92,4 +92,4 @@ jobs:
           path: .
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t generate-docker-image --base=dev --head=HEAD --ecrConfigFile=repository-urls --skip-nx-cache
+      - run: pnpm exec nx affected -t generate-docker-image --base=${{ github.event.before }} --head=${{ github.event.after }} --ecrConfigFile=repository-urls --skip-nx-cache

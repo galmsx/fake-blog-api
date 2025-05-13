@@ -60,7 +60,7 @@ jobs:
       - name: Upload repository URLs
         uses: actions/upload-artifact@v4
         with:
-          name: repository-urls
+          name: repository_urls
           path: ./tools/infrastructure/repository_urls.json
 
   deploy-applications:
@@ -90,11 +90,11 @@ jobs:
       - name: Download repository URLs
         uses: actions/download-artifact@v4
         with:
-          name: repository-urls
-          path: repository-urls.json
+          name: repository_urls
+          path: .
       - run: ls 
-      - run: cat repository-urls.json
+      - run: cat repository_urls.json
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
       # - run: pnpm exec nx affected -t generate-docker-image --base=${{ github.event.before }} --head=${{ github.event.after }} --ecrConfigFile=repository-urls --skip-nx-cache
-      - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository-urls.json --skip-nx-cache
+      - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository_urls.json --skip-nx-cache

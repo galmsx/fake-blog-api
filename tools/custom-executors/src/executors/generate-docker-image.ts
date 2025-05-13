@@ -70,7 +70,7 @@ export default async function runExecutor(
   // await dockerHelper.build(dockerFilePath, imageName, buildArgs);
 
   if (schema.ecrConfigFile) {
-    const config = fs.readFileSync(path.join(process.cwd(), schema.ecrConfigFile));
+    const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), schema.ecrConfigFile), 'utf8'));
     console.log(config);
   }
   else {

@@ -92,7 +92,7 @@ export default async function runExecutor(
   await dockerHelper.tag(imageName, `${dockerRepopsitoryUrl}:latest`);
 
   await dockerHelper.push(`${dockerRepopsitoryUrl}:latest`);
-  await execPromise(`aws ecs update-service - cluster my-ecs-cluster - service context.projectName - force-new-deployment`);
+  await execPromise(`aws ecs update-service --cluster my-ecs-cluster --service  ${context.projectName} --force-new-deployment`);
 
   return { success: true };
 }

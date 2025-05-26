@@ -171,6 +171,8 @@ module "ecs-service-ec2-elb" {
     DB_PASSWORD = var.db_password,
     DB_DATABASE = var.db_name,
     DB_PORT     = var.db_port
+    JWT_SECRET  = var.jwt_secret
+    JWT_REFRESH = var.jwt_refresh
     NODE_ENV    = var.node_env
   }
   depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]

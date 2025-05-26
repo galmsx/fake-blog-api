@@ -6,10 +6,10 @@ const schema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'staging', 'production')
     .default('development'),
-  AUTH_SERVICE_PORT: Joi.string().default('9090'),
-  USER_SERVICE_PORT: Joi.string().default('9090'),
-  POST_SERVICE_PORT: Joi.string().default('9090'),
-  COMMENT_SERVICE_PORT: Joi.string().default('9090'),
+  AUTH_SERVICE_PORT: Joi.string().default('80'),
+  USER_SERVICE_PORT: Joi.string().default('80'),
+  POST_SERVICE_PORT: Joi.string().default('80'),
+  COMMENT_SERVICE_PORT: Joi.string().default('80'),
   GATEWAY_PORT: Joi.string().default('80'),
   JWT_SECRET: Joi.string(),
   JWT_EXPIRES_IN: Joi.string().default('2h'),

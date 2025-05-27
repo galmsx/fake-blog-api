@@ -37,7 +37,7 @@
         "platform": "node",
         "outputPath": "services/post/dist",
         "format": ["cjs"],
-        "bundle": false,
+        "bundle": true,
         "main": "services/post/src/main.ts",
         "tsConfig": "services/post/tsconfig.app.json",
         "assets": ["services/post/src/assets"],

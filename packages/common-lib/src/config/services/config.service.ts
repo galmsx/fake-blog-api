@@ -59,6 +59,10 @@ export class ConfigService {
     return this.config[key];
   }
 
+  getRpcHost(service: RPC.SERVICE): string {
+    return this.NODE_ENV === 'development' ? `localhost` : `${service.toLowerCase()}.local`;
+  }
+
   getRpcClientPort(service: RPC.SERVICE): string {
     switch (service) {
       case RPC.SERVICE.AUTH:

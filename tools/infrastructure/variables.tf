@@ -61,7 +61,7 @@ variable "jwt_refresh" {
 }
 variable "node_env" {
   type    = string
-  default = "development"
+  default = "staging"
 }
 variable "ec2_instance_type" {
   type    = string

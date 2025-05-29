@@ -53,6 +53,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port = 80
     to_port   = 50051
     protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {

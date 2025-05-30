@@ -60,7 +60,7 @@ export class ConfigService {
   }
 
   getRpcHost(service: RPC.SERVICE): string {
-    return this.NODE_ENV === 'development' ? `localhost` : `${service.toLowerCase()}.local`;
+    return this.NODE_ENV === 'development' ? `localhost` : `${service.toLowerCase()}.${service.toLowerCase()}`;
   }
 
   getRpcClientPort(service: RPC.SERVICE): string {

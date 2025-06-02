@@ -37,7 +37,7 @@ variable "private_subnets" {
 variable "port" {
   description = "Port for gRPC communication"
   type        = number
-  default     = 50051
+  default     = 80
 }
 
 variable "allowed_cidr_blocks" {

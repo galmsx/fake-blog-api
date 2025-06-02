@@ -194,6 +194,7 @@ module "ecs-service-ec2-sd" {
     aws_subnet.private_az2.id
   ]
   vpc_id      = aws_vpc.main.id
+  dns_namspace_id = aws_service_discovery_private_dns_namespace.local_namespace.id
   postgres_ip = aws_instance.postgres_instance.private_ip
   environment_variables = {
     DB_HOST     = aws_instance.postgres_instance.private_ip,

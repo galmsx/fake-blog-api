@@ -84,3 +84,9 @@ resource "aws_route_table_association" "private_az2" {
   subnet_id      = aws_subnet.private_az2.id
   route_table_id = aws_route_table.private.id
 }
+
+resource "aws_service_discovery_private_dns_namespace" "local_namespace" {
+  name        = "local"
+  description = "Private DNS namespace for gRPC services"
+  vpc         = aws_vpc.main.id
+}

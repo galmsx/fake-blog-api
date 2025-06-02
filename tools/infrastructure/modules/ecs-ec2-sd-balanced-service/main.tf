@@ -105,19 +105,12 @@ resource "aws_ecs_service" "service" {
 }
 
 
-# 12. Service Discovery для gRPC сервиса
-resource "aws_service_discovery_private_dns_namespace" "grpc_namespace" {
-  name        = var.service_name
-  description = "Private DNS namespace for gRPC services"
-  vpc         = var.vpc_id
-}
-
 resource "aws_service_discovery_service" "grpc_service" {
   name = var.service_name
 
 
   dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.grpc_namespace.id
+    namespace_id = var.dns_namspace_id
     dns_records {
       ttl  = 10
       type = "A"

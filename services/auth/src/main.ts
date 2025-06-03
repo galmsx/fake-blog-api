@@ -22,7 +22,7 @@ async function bootstrap() {
       options: {
         package: AuthRPC.packageName,
         protoPath: AuthRPC.protoPath,
-        url: `${config.getRpcHost(RPC.SERVICE.AUTH)}:${config.AUTH_SERVICE_PORT}`,
+        url: `0.0.0.0:${config.AUTH_SERVICE_PORT}`,
         loader: {
           includeDirs: [protoDir],
           keepCase: true,

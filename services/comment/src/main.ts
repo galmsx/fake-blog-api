@@ -21,7 +21,7 @@ async function bootstrap() {
       options: {
         package: CommentRPC.packageName,
         protoPath: CommentRPC.protoPath,
-        url: `localhost:${config.COMENT_SERVICE_PORT}`,
+        url: `0.0.0.0:${config.COMENT_SERVICE_PORT}`,
         loader: {
           includeDirs: [protoDir],
           keepCase: true,

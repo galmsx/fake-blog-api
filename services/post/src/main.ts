@@ -22,7 +22,7 @@ async function bootstrap() {
       options: {
         package: PostRPC.packageName,
         protoPath: PostRPC.protoPath,
-        url: `localhost:${config.POST_SERVICE_PORT}`,
+        url: `0.0.0.0:${config.POST_SERVICE_PORT}`,
         loader: {
           includeDirs: [protoDir],
           keepCase: true,

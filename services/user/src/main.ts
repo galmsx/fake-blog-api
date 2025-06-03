@@ -21,7 +21,7 @@ async function bootstrap() {
       options: {
         package: UserRPC.packageName,
         protoPath: UserRPC.protoPath,
-        url: `localhost:${config.USER_SERVICE_PORT}`,
+        url: `0.0.0.0:${config.USER_SERVICE_PORT}`,
         loader: {
           includeDirs: [protoDir],
           keepCase: true,

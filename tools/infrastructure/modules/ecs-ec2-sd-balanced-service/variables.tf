@@ -79,7 +79,7 @@ variable "task_cpu" {
 variable "task_memory" {
   description = "Memory for ECS task (MB)"
   type        = number
-  default     = 512
+  default     = 256
 }
 
 variable "environment_variables" {

@@ -100,7 +100,7 @@ resource "aws_autoscaling_group" "ecs_cluster_asg" {
   name                = "my-ecs-cluster-asg"
   vpc_zone_identifier = [aws_subnet.private_az1.id, aws_subnet.private_az2.id]
   min_size            = 1
-  max_size            = 3
+  max_size            = 5
   desired_capacity    = 2
 
   launch_template {

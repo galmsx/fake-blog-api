@@ -9,7 +9,7 @@ import "common/common.proto";
 service UserService {
   rpc GetUserWithPassword (UserFindOptions) returns (UserWithPasswordResponse) {}
   rpc CreateUser (CreateUser) returns (common.EmptyResponse) {}
-  rpc HealthCheck (google.protobuf.Empty) returns (common.HealthCheckData) {}
+  rpc HealthCheck (google.protobuf.Empty) returns (common.HealthCheckResponse) {}
 }
 
 message UserFindOptions {

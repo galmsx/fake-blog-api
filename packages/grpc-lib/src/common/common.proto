@@ -11,7 +11,10 @@ message PageOptions{
     int32 offset = 2;
     optional string sort = 3;
 }
-message HealthCheckData{
-    int32 status = 2;
+message HealthCheckData {
     string dbConnection = 1;
+}
+message HealthCheckResponse{
+    int32 status = 2;
+    HealthCheckData data = 3;
 }

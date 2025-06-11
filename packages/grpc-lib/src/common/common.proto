@@ -11,3 +11,6 @@ message PageOptions{
     int32 offset = 2;
     optional string sort = 3;
 }
+message HealthCheckData{
+    string dbConnection = 1;
+}

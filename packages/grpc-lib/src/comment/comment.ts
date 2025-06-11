@@ -16,7 +16,7 @@ export interface CommentService {
   getGroupedComments(
     options: Comment.Types.GetGroupedCommentsRequest
   ): Promise<GetGroupedCommentsResponse>;
-  healthCheck(): Promise<void>;
+  healthCheck(): Promise<Common.HealthCheckData>;
 }
 
 export const serviceName = 'CommentService';

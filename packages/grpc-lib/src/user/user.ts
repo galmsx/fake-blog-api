@@ -1,4 +1,4 @@
-import { User } from '@local/types-lib';
+import { User, Common } from '@local/types-lib';
 import { ClientConfig } from '../rpc-client/types';
 
 export interface UserService {
@@ -6,7 +6,7 @@ export interface UserService {
     findOptions: User.Types.UserFindOptions
   ): Promise<User.Types.UserWithPassword | null>;
   createUser(request: User.Types.CreateUserRequest): Promise<void>;
-  healthCheck(): Promise<void>;
+  healthCheck(): Promise<Common.HealthCheckData>;
 }
 
 export const serviceName = 'UserService';

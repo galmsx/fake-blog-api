@@ -23,3 +23,6 @@ export class PageOptions {
   @IsOptional()
   sort?: SortOrder;
 }
+export class HealthCheckData{
+  dbConnection?: string;
+}

@@ -25,18 +25,19 @@ export class HealthController {
         const measureExecutionTime = async (serviceCall, serviceName) => {
             const startTime = Date.now();
             try {
-                await serviceCall();
+                const data = await serviceCall();
                 return {
                     service: serviceName,
                     status: 'success',
                     duration: Date.now() - startTime,
+                    data,
                 };
             } catch (error) {
                 return {
                     service: serviceName,
                     status: 'failure',
-                    error: error.message || error, 
-                    duration: Date.now() - startTime, 
+                    error: error.message || error,
+                    duration: Date.now() - startTime,
                 };
             }
         };
@@ -49,7 +50,7 @@ export class HealthController {
             measureExecutionTime(() => this.commentService.healthCheck(), 'commentService'),
         ]).then(res => res.map(result => {
             if (result.status === 'fulfilled') {
-                return result.value; 
+                return result.value;
             } else {
                 return {
                     service: 'unknown',

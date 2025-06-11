@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket       = "galmsx-tfstate-test"
+    key          = "state"
+    region       = "us-east-1"
+    use_lockfile = true
+  }
+}
+
+
 provider "aws" {
   region = var.aws_region
 }
@@ -10,93 +20,130 @@ resource "aws_ecs_cluster" "cluster" {
     value = "enabled"
   }
 }
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "my-ecs-instance-role"
 
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
 }
 
-# 2. Internet Gateway (для публичного ALB)
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
+resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-# 3. Публичные подсети (для ALB)
-resource "aws_subnet" "public_az1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true # Для ALB
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "my-ecs-instance-profile"
+  role = aws_iam_role.ecs_instance_role.name
 }
+# 3. Security Groups
+resource "aws_security_group" "ecs_sg" {
+  name        = "my-ecs-instance-sg"
+  description = "Security group for ECS EC2 instances"
+  vpc_id      = aws_vpc.main.id
+  ingress {
+    from_port = 80
+    to_port   = 50051
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-resource "aws_subnet" "public_az2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
-}
-
-# 4. Приватные подсети (для ECS-сервисов)
-resource "aws_subnet" "private_az1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.101.0/24"
-  availability_zone = "us-east-1a"
-}
-
-resource "aws_subnet" "private_az2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.102.0/24"
-  availability_zone = "us-east-1b"
-}
-# 5. NAT Gateway (для выхода в интернет из приватных подсетей)
-resource "aws_eip" "nat" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_az1.id # NAT должен быть в публичной подсети!
-}
-# 6. Таблицы маршрутов
-## Публичная таблица (для ALB)
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
+data "aws_ami" "ecs_optimized" {
+  most_recent = true
+  owners      = ["amazon"]
 
-## Приватная таблица (для ECS-сервисов)
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat.id # Выход в интернет через NAT
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-ecs-hvm-*-x86_64-ebs"]
   }
 }
-# 7. Привязка подсетей к таблицам маршрутов
-resource "aws_route_table_association" "public_az1" {
-  subnet_id      = aws_subnet.public_az1.id
-  route_table_id = aws_route_table.public.id
-}
+resource "aws_launch_template" "ecs_launch_template" {
+  name_prefix   = "ecs-cluster-launch-template-"
+  image_id      = data.aws_ami.ecs_optimized.id
+  instance_type = var.ec2_instance_type
 
-resource "aws_route_table_association" "public_az2" {
-  subnet_id      = aws_subnet.public_az2.id
-  route_table_id = aws_route_table.public.id
-}
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
 
-resource "aws_route_table_association" "private_az1" {
-  subnet_id      = aws_subnet.private_az1.id
-  route_table_id = aws_route_table.private.id
-}
+  network_interfaces {
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
 
-resource "aws_route_table_association" "private_az2" {
-  subnet_id      = aws_subnet.private_az2.id
-  route_table_id = aws_route_table.private.id
+  user_data = base64encode(<<-EOF
+              #!/bin/bash
+              echo ECS_CLUSTER=${aws_ecs_cluster.cluster.name} >> /etc/ecs/ecs.config
+              EOF
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+# Общий Auto Scaling Group для ECS-кластера
+resource "aws_autoscaling_group" "ecs_cluster_asg" {
+  name                = "my-ecs-cluster-asg"
+  vpc_zone_identifier = [aws_subnet.private_az1.id, aws_subnet.private_az2.id]
+  min_size            = 1
+  max_size            = 5
+  desired_capacity    = 2
+
+  launch_template {
+    id      = aws_launch_template.ecs_launch_template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "ECS Instance - Shared Cluster"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = ""
+    propagate_at_launch = true
+  }
+}
+# Общий Capacity Provider
+resource "aws_ecs_capacity_provider" "ecs_cp" {
+  name = "my-ecs-cluster-cp"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.ecs_cluster_asg.arn
+
+    managed_scaling {
+      maximum_scaling_step_size = 2
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 90
+    }
+  }
+}
+resource "aws_ecs_cluster_capacity_providers" "cluster_cps" {
+  cluster_name       = aws_ecs_cluster.cluster.name
+  capacity_providers = [aws_ecs_capacity_provider.ecs_cp.name]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = aws_ecs_capacity_provider.ecs_cp.name
+  }
 }
 
 module "ecs-service-ec2-elb" {
@@ -106,8 +153,9 @@ module "ecs-service-ec2-elb" {
   cluster_name = aws_ecs_cluster.cluster.name
   cluster_id   = aws_ecs_cluster.cluster.id
   service_name = each.value.name
-  port         = each.value.port
   aws_region   = var.aws_region
+  sg_id        = aws_security_group.ecs_sg.id
+  ecs_cp_name  = aws_ecs_capacity_provider.ecs_cp.name
   private_subnets = [
     aws_subnet.private_az1.id,
     aws_subnet.private_az2.id
@@ -116,40 +164,60 @@ module "ecs-service-ec2-elb" {
     aws_subnet.public_az1.id,
     aws_subnet.public_az2.id
   ]
-  vpc_id = aws_vpc.main.id
+  vpc_id      = aws_vpc.main.id
+  postgres_ip = aws_instance.postgres_instance.private_ip
+  environment_variables = {
+    DB_HOST     = aws_instance.postgres_instance.private_ip,
+    DB_USERNAME = var.db_username,
+    DB_PASSWORD = var.db_password,
+    DB_DATABASE = var.db_name,
+    DB_PORT     = var.db_port
+    JWT_SECRET  = var.jwt_secret
+    JWT_REFRESH = var.jwt_refresh
+    NODE_ENV    = var.node_env
+  }
+  depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]
 }
 
-# module "ecs-service-ec2-sd" {
-#   for_each = { for k, v in var.projects : k => v if v.type == "EC2_SD" }
-#   source   = "./modules/ecs-ec2-sd-balanced-service"
-#   # остальные параметры
-#   cluster_name = aws_ecs_cluster.cluster.name
-#   cluster_id   = aws_ecs_cluster.cluster.id
-#   service_name = each.value.name
-#   port         = each.value.port
-#   aws_region   = var.aws_region
-#   private_subnets = [
-#     aws_subnet.private_az1.id,
-#     aws_subnet.private_az2.id
-#   ]
-#   vpc_id = aws_vpc.main.id
-# }
+module "ecs-service-ec2-sd" {
+  for_each = { for k, v in var.projects : k => v if v.type == "EC2_SD" }
+  source   = "./modules/ecs-ec2-sd-balanced-service"
+  # остальные параметры
+  cluster_name = aws_ecs_cluster.cluster.name
+  cluster_id   = aws_ecs_cluster.cluster.id
+  service_name = each.value.name
+  aws_region   = var.aws_region
+  sg_id        = aws_security_group.ecs_sg.id
+  ecs_cp_name  = aws_ecs_capacity_provider.ecs_cp.name
+  private_subnets = [
+    aws_subnet.private_az1.id,
+    aws_subnet.private_az2.id
+  ]
+  vpc_id      = aws_vpc.main.id
+  dns_namspace_id = aws_service_discovery_private_dns_namespace.local_namespace.id
+  postgres_ip = aws_instance.postgres_instance.private_ip
+  environment_variables = {
+    DB_HOST     = aws_instance.postgres_instance.private_ip,
+    DB_USERNAME = var.db_username,
+    DB_PASSWORD = var.db_password,
+    DB_DATABASE = var.db_name,
+    DB_PORT     = var.db_port
+    JWT_SECRET  = var.jwt_secret
+    JWT_REFRESH = var.jwt_refresh
+    NODE_ENV    = var.node_env
+  }
+  depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]
+}
 
-# module "ecs-service-fargate" {
-#   for_each = { for k, v in var.projects : k => v if v.type != "EC2_ELB" && v.type != "EC2_SD" }
-#   source   = "./modules/ecs-fargate-sd-balanced-service"
-#   # остальные параметры
-#   cluster_id   = aws_ecs_cluster.cluster.id
-#   service_name = each.value.name
-#   port         = each.value.port
-#   aws_region   = var.aws_region
-#   private_subnets = [
-#     aws_subnet.private_az1.id,
-#     aws_subnet.private_az2.id
-#   ]
-#   vpc_id = aws_vpc.main.id
-# }
 
 output "lb_dns" {
   value = { for name, service in module.ecs-service-ec2-elb : name => service.pub_ip }
+}
+
+output "service_repository_urls" {
+  value = merge(
+    { for name, service in module.ecs-service-ec2-elb : name => service.repository_url },
+    { for name, service in module.ecs-service-ec2-sd : name => service.repository_url }
+  )
+  description = "Map of service names to their ECR repository URLs"
 }

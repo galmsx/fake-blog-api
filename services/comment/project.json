@@ -37,7 +37,7 @@
         "platform": "node",
         "outputPath": "services/comment/dist",
         "format": ["cjs"],
-        "bundle": false,
+        "bundle": true,
         "main": "services/comment/src/main.ts",
         "tsConfig": "services/comment/tsconfig.app.json",
         "assets": ["services/comment/src/assets"],

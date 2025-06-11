@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { CommentRPC } from '@local/grpc-lib';
-import { Comment } from '@local/types-lib';
+import { Comment, Common } from '@local/types-lib';
 import { CommentRepository } from './comment.repository';
 
 @Controller()
@@ -10,7 +10,10 @@ export class CommentService implements CommentRPC.CommentService {
 
   @GrpcMethod()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async healthCheck(): Promise<void> {
+  async healthCheck(): Promise<Common.HealthCheckData> {
+    return {
+    
+    }
   };
 
   @GrpcMethod()

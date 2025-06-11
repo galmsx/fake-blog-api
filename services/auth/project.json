@@ -16,7 +16,7 @@
         "platform": "node",
         "outputPath": "services/auth/dist",
         "format": ["cjs"],
-        "bundle": false,
+        "bundle": true,
         "main": "services/auth/src/main.ts",
         "tsConfig": "services/auth/tsconfig.app.json",
         "assets": ["services/auth/src/assets"],

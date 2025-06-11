@@ -1,3 +1,4 @@
 export interface GenerateDockerImageExecutorSchema {
-    dockerFilePath?: string;
-  }
+  ecrConfigFile?: string,
+  justBuildImage?: boolean,
+}

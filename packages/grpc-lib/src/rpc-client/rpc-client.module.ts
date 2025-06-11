@@ -41,7 +41,7 @@ export class RpcClientModule {
               options: {
                 package: serviceConfig.packageName,
                 protoPath: serviceConfig.protoPath,
-                url: `localhost:${config.getRpcClientPort(service)}`,
+                url: `${config.getRpcHost(service)}:${config.getRpcClientPort(service)}`,
                 loader: {
                   includeDirs: [protoDir],
                   keepCase: true,

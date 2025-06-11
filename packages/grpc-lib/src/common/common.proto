@@ -12,5 +12,6 @@ message PageOptions{
     optional string sort = 3;
 }
 message HealthCheckData{
+    int32 status = 2;
     string dbConnection = 1;
 }

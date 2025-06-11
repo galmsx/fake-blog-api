@@ -98,5 +98,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
       - uses: nrwl/nx-set-shas@v4
-      # - run: pnpm exec nx affected -t generate-docker-image --base=${{ github.event.before }} --head=${{ github.event.after }} --ecrConfigFile=repository-urls --skip-nx-cache
-      - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository_urls.json --skip-nx-cache
+      - run: pnpm exec nx affected -t generate-docker-image --base=${{ github.event.before }} --head=${{ github.event.after }}  --ecrConfigFile=repository_urls.json --skip-nx-cache
+      # - run: pnpm exec nx run-many -t generate-docker-image --ecrConfigFile=repository_urls.json --skip-nx-cache

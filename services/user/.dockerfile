@@ -31,4 +31,4 @@ WORKDIR /app
 COPY --from=builder /app/deploy ./builded
 COPY --from=builder /app/packages/grpc-lib/src /app/packages/grpc-lib/src 
 
-CMD ["sh", "-c", "npm run migrate:gen && npm run migrate:run && node builded/main.js"]
+CMD ["node", "builded/main.js"]

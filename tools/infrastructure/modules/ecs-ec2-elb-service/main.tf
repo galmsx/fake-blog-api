@@ -1,5 +1,5 @@
 #ecs-ec2-elb-service
-# 1. ECR репозиторий
+# 1. ECR repository
 resource "aws_ecr_repository" "service" {
   name                 = var.service_name
   image_tag_mutability = "MUTABLE"
@@ -9,7 +9,7 @@ resource "aws_ecr_repository" "service" {
   }
 }
 
-# 2. IAM роли и политики
+# 2. IAM roles and policies
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.service_name}-ecs-task-execution-role"
 
@@ -30,8 +30,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-
-# 8. Load Balancer ресурсы
+# 8. Load Balancer resources
 resource "aws_lb" "ecs_alb" {
   name               = "${var.service_name}-ecs-alb"
   internal           = false
@@ -134,3 +133,4 @@ resource "aws_ecs_service" "service" {
     aws_lb_listener.http,
   ]
 }
+

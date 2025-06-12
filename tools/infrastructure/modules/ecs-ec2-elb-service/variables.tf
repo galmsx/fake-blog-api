@@ -62,7 +62,7 @@ variable "task_memory" {
 variable "desired_count" {
   description = "Number of tasks to run"
   type        = number
-  default     = 1 # Для отказоустойчивости
+  default     = 1 
 }
 
 variable "environment_variables" {

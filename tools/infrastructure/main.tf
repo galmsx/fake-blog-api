@@ -20,6 +20,7 @@ resource "aws_ecs_cluster" "cluster" {
     value = "enabled"
   }
 }
+
 resource "aws_iam_role" "ecs_instance_role" {
   name = "my-ecs-instance-role"
 
@@ -44,7 +45,8 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "my-ecs-instance-profile"
   role = aws_iam_role.ecs_instance_role.name
 }
-# 3. Security Groups
+
+# 3. Create security group for ECS EC2 instances
 resource "aws_security_group" "ecs_sg" {
   name        = "my-ecs-instance-sg"
   description = "Security group for ECS EC2 instances"
@@ -63,6 +65,7 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 data "aws_ami" "ecs_optimized" {
   most_recent = true
   owners      = ["amazon"]
@@ -72,6 +75,7 @@ data "aws_ami" "ecs_optimized" {
     values = ["amzn2-ami-ecs-hvm-*-x86_64-ebs"]
   }
 }
+
 resource "aws_launch_template" "ecs_launch_template" {
   name_prefix   = "ecs-cluster-launch-template-"
   image_id      = data.aws_ami.ecs_optimized.id
@@ -95,7 +99,8 @@ resource "aws_launch_template" "ecs_launch_template" {
     create_before_destroy = true
   }
 }
-# Общий Auto Scaling Group для ECS-кластера
+
+# 4. Create Auto Scaling Group for ECS cluster
 resource "aws_autoscaling_group" "ecs_cluster_asg" {
   name                = "my-ecs-cluster-asg"
   vpc_zone_identifier = [aws_subnet.private_az1.id, aws_subnet.private_az2.id]
@@ -120,7 +125,8 @@ resource "aws_autoscaling_group" "ecs_cluster_asg" {
     propagate_at_launch = true
   }
 }
-# Общий Capacity Provider
+
+# 5. Create Capacity Provider
 resource "aws_ecs_capacity_provider" "ecs_cp" {
   name = "my-ecs-cluster-cp"
 
@@ -135,6 +141,7 @@ resource "aws_ecs_capacity_provider" "ecs_cp" {
     }
   }
 }
+
 resource "aws_ecs_cluster_capacity_providers" "cluster_cps" {
   cluster_name       = aws_ecs_cluster.cluster.name
   capacity_providers = [aws_ecs_capacity_provider.ecs_cp.name]
@@ -149,7 +156,7 @@ resource "aws_ecs_cluster_capacity_providers" "cluster_cps" {
 module "ecs-service-ec2-elb" {
   for_each = { for k, v in var.projects : k => v if v.type == "EC2_ELB" }
   source   = "./modules/ecs-ec2-elb-service"
-  # остальные параметры
+  # Other parameters
   cluster_name = aws_ecs_cluster.cluster.name
   cluster_id   = aws_ecs_cluster.cluster.id
   service_name = each.value.name
@@ -182,7 +189,7 @@ module "ecs-service-ec2-elb" {
 module "ecs-service-ec2-sd" {
   for_each = { for k, v in var.projects : k => v if v.type == "EC2_SD" }
   source   = "./modules/ecs-ec2-sd-balanced-service"
-  # остальные параметры
+  # Other parameters
   cluster_name = aws_ecs_cluster.cluster.name
   cluster_id   = aws_ecs_cluster.cluster.id
   service_name = each.value.name
@@ -209,7 +216,6 @@ module "ecs-service-ec2-sd" {
   depends_on = [aws_ecs_cluster_capacity_providers.cluster_cps, aws_instance.postgres_instance]
 }
 
-
 output "lb_dns" {
   value = { for name, service in module.ecs-service-ec2-elb : name => service.pub_ip }
 }
@@ -221,3 +227,4 @@ output "service_repository_urls" {
   )
   description = "Map of service names to their ECR repository URLs"
 }
+

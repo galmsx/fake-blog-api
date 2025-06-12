@@ -10,7 +10,7 @@ import { ExecutionContext } from '@local/common-lib';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
     @Inject(AUTH_SERVICE) private authService: AuthRPC.AuthService,
-    private readonly contextService: ExecutionContext.ContextService
+    @Inject(ExecutionContext.ContextService) private readonly contextService: ExecutionContext.ContextService
   ) {
     super({
       usernameField: 'email',

@@ -1,5 +1,5 @@
 #ecs-ec2-sd-balanced-service
-# 1. ECR репозиторий
+# 1. ECR repository
 resource "aws_ecr_repository" "service" {
   name                 = var.service_name
   image_tag_mutability = "MUTABLE"
@@ -9,7 +9,7 @@ resource "aws_ecr_repository" "service" {
   }
 }
 
-# 2. IAM роли и политики
+# 2. IAM roles and policies
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.service_name}-ecs-task-execution-role"
 
@@ -32,10 +32,10 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 
 
 
-# 9. Task Definition для gRPC сервиса
+# 9. Task Definition for gRPC service
 resource "aws_ecs_task_definition" "service" {
   family                   = var.service_name
-  network_mode             = "awsvpc" # Используем awsvpc для лучшей производительности сети
+  network_mode             = "awsvpc" # Use awsvpc network mode for better network performance
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   cpu                      = var.task_cpu
@@ -75,14 +75,14 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   retention_in_days = var.log_retention_days
 }
 
-# 11. ECS Service без Load Balancer
+# 11. ECS Service without Load Balancer
 resource "aws_ecs_service" "service" {
   name            = "${var.service_name}-service"
   cluster         = var.cluster_id
   task_definition = aws_ecs_task_definition.service.arn
   desired_count   = var.desired_count
 
-  # Конфигурация сети для awsvpc mode
+  # Network configuration for awsvpc mode
   network_configuration {
     subnets          = var.private_subnets
     security_groups  = [var.sg_id]
@@ -94,7 +94,7 @@ resource "aws_ecs_service" "service" {
     weight            = 100
   }
 
-  # Включение Service Discovery для gRPC
+  # Enable Service Discovery for gRPC
   service_registries {
     registry_arn = aws_service_discovery_service.grpc_service.arn
   }
@@ -123,3 +123,4 @@ resource "aws_service_discovery_service" "grpc_service" {
     failure_threshold = 1
   }
 }
+

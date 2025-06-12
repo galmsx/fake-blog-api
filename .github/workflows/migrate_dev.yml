@@ -5,13 +5,6 @@ on: workflow_dispatch
 permissions:
   actions: read
   contents: read
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  TF_VERSION: 1.5.0
-
 jobs:
   deploy-applications:
     name: Deploy Applications with Nx
@@ -34,7 +27,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
       - name: Run database migrations
         # run: pnpm exec nx affected -t migrate-run --base=${{ github.event.before }} --head=${{ github.event.after }} --skip-nx-cache
-        run: pnpm exec nx run-many -t migrate-run --base=${{ github.event.before }} --head=${{ github.event.after }} --skip-nx-cache
+        run: pnpm exec nx run-many -t migrate-run --skip-nx-cache
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}

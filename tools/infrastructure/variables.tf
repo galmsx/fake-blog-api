@@ -45,7 +45,6 @@ variable "db_password" {
 }
 variable "db_name" {
   type    = string
-  default = "testdb"
 }
 variable "db_port" {
   type    = string

@@ -27,11 +27,11 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
       - name: Run database migrations
         # run: pnpm exec nx affected -t migrate-run --base=${{ github.event.before }} --head=${{ github.event.after }} --skip-nx-cache
-        run: pnpm exec nx run-many -t migrate-run --skip-nx-cache
+        run: pnpm exec nx run-many -t migrate:run --skip-nx-cache
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_DATABASE: ${{ secrets.DB_DATABASE }}
           DB_PORT: ${{ secrets.DB_PORT }}
-        #   Need to update in secrets after main infrastructure is deployed(@todo fix it)
+          #   Need to update in secrets after main infrastructure is deployed(@todo fix it)
           DB_HOST: ${{ secrets.DB_HOST }}
